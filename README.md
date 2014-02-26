@@ -5,7 +5,7 @@
 
 
  usage
- ===
+ ====
 
     ./simprep -f <sequence file> -s <salt conc in M>  -v <additional space>
 
