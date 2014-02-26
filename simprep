@@ -97,6 +97,15 @@ def calculate_net_charge(seq):
 
 #-------------------------------------------------------------------
 def calculate_optimal_sphere_radius(seq_length,extraspace):
+    """
+        To calculate the optimal radius we
+        - Assume each amino acid has a fully extended distance of 4A
+        - Calculate the diameter as 4*number of residues
+        - Add to that diameter an "extraspace"*2 distance which is a 
+          distance spacer on either side of this diameter
+        - divide that final number by 2 to convert from diameter to
+          radius
+    """
     return ((4*(seq_length+1))+(extraspace*2))/2
 
 
