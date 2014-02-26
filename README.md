@@ -7,6 +7,9 @@ simprep: overview
 
 usage
 ===
+Simprep is designed to be used in *nix environments - i.e. it should run on any flavour of Linux or OSX. Given its just a Python script no installation is required - simply download and run the script here.
+
+To use simprep simply run as follows. This generates a file called seq.in in your current directory, as well as printing some information to the terminal
  
 
     ./simprep -f <sequence file> -s <salt conc in M>  -v <additional space>
