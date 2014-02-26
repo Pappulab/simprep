@@ -1,11 +1,13 @@
-  simprep: overview
+simprep: overview
 =======
 
 **simprep** is a simple tool which allows you to take a single-letter amino acid sequece (raw or FASTA) and directly convert it into a CAMPARI ready, neutrally charged sequence with a specific salt concentration.
 
 
- usage
- ====
+
+usage
+===
+ 
 
     ./simprep -f <sequence file> -s <salt conc in M>  -v <additional space>
 
