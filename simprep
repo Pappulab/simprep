@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-
 ## Alex Holehouse
 ## Pappulab
 ## February 2014
@@ -10,13 +9,11 @@
 ## Creates a CAMPARI ready input file and provides a couple of parameters to define your simulation
 ## with
 ## 
-## Has a nice user interface
-
-
-
 
 from math import pi
 
+
+#-------------------------------------------------------------------
 def convert_1_to_3(AA):
     """ Convert 1 letter amino acid code to it's 3 letter amino acid code. Note
         by default histadines are set to HIE (i.e. hydrogen on the epsilon
@@ -48,8 +45,8 @@ def convert_1_to_3(AA):
         print ("ERROR: Tried to use %s as an amino for conversion, but is not a standard 1 letter code... " % str(AA))
         raise
 
-    
 
+#-------------------------------------------------------------------
 def read_in_sequence(filename):
     """ Take a file containing 1-letter amino acid codes, open it, and read it in and convert it
         into a list of 3-letter amino acid codes (all upper case).
@@ -86,6 +83,7 @@ def read_in_sequence(filename):
     return seq
 
 
+#-------------------------------------------------------------------
 def calculate_net_charge(seq):
     """
        Calculate the net charge on a sequence
@@ -97,10 +95,12 @@ def calculate_net_charge(seq):
     return (positive-negative)
 
 
+#-------------------------------------------------------------------
 def calculate_optimal_sphere_radius(seq_length,extraspace):
     return ((4*(seq_length+1))+(extraspace*2))/2
 
 
+#-------------------------------------------------------------------
 def calculate_optimal_sphere_volume(seq_length, extraspace):
     """
         Function to calculate the optimal sphere volume. The peptide is estimated to be 4 nm
@@ -113,6 +113,7 @@ def calculate_optimal_sphere_volume(seq_length, extraspace):
     return ((4.0/3.0)*pi*(optimal_radius*optimal_radius*optimal_radius))
 
 
+#-------------------------------------------------------------------
 def get_number_of_salt_ions(target_concentration, sequence, extraspace):
     """
         Get number of ions needed for a specific sequence to achieve the
@@ -133,6 +134,7 @@ def get_number_of_salt_ions(target_concentration, sequence, extraspace):
     return(int(num_ions+0.5))
 
 
+#-------------------------------------------------------------------
 def print_optimal_radius(seq_length, extraspace):
 
     print "-----------------------------------------------------"
@@ -142,6 +144,7 @@ def print_optimal_radius(seq_length, extraspace):
     print "-----------------------------------------------------"
 
 
+#-------------------------------------------------------------------
 def write_sequence_files(seq, target_salt, extraspace):
 
     newseq = []
@@ -183,14 +186,6 @@ def write_sequence_files(seq, target_salt, extraspace):
         f.write('CL-\n')
     f.close()
     
-        
-
-    
-
-        
-
-
-
 
 ## ===================================================================================================
 ##                              Main Script - hold onto your hat!
@@ -253,6 +248,3 @@ if __name__=="__main__":
         raise
 
     print "Sequence file generated - seq.in"
-
-    
-    
