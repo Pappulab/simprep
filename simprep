@@ -17,9 +17,6 @@
 
 from math import pi
 
-
-
-
 def convert_1_to_3(AA):
     """ Convert 1 letter amino acid code to it's 3 letter amino acid code. Note
         by default histadines are set to HIE (i.e. hydrogen on the epsilon
