@@ -1,0 +1,261 @@
+#!/usr/bin/python
+
+
+## Alex Holehouse
+## Pappulab
+## February 2014
+##
+## simprep
+##
+## Creates a CAMPARI ready input file and provides a couple of parameters to define your simulation
+## with
+## 
+## Has a nice user interface
+
+
+
+
+from math import pi
+
+
+
+
+def convert_1_to_3(AA):
+    """ Convert 1 letter amino acid code to it's 3 letter amino acid code. Note
+        by default histadines are set to HIE (i.e. hydrogen on the epsilon
+        nitrogen)
+    """    
+    AADICT = {"A":"ALA", 
+              "C":"CYS",
+              "D":"ASP",
+              "E":"GLU",
+              "F":"PHE",
+              "G":"GLY",
+              "H":"HIE",
+              "I":"ILE",
+              "K":"LYS",
+              "L":"LEU",
+              "M":"MET",
+              "N":"ASN",
+              "P":"PRO",
+              "Q":"GLN",
+              "R":"ARG",
+              "S":"SER",
+              "T":"THR",
+              "V":"VAL",
+              "W":"TRP",
+              "Y":"TYR"}
+    try:
+        return(AADICT[AA.upper()])
+    except:
+        print ("ERROR: Tried to use %s as an amino for conversion, but is not a standard 1 letter code... " % str(AA))
+        raise
+
+    
+
+def read_in_sequence(filename):
+    """ Take a file containing 1-letter amino acid codes, open it, and read it in and convert it
+        into a list of 3-letter amino acid codes (all upper case).
+    """
+    try:
+        with open(filename) as f:
+            content = f.readlines()
+    except IOError:
+        print '[FATAL ERROR]: File does not exist or could not be opened' 
+        raise
+
+    # check if file is a FASTA file
+    if content[0].find(">") > -1:
+        print "Reading file...."
+        print "> Found FASTA file!"
+
+        seq=""
+        for i in xrange(1,len(content)):
+            seq = seq+content[i][:-1]
+
+        seq = list(seq)
+
+    # if we just have a sequence in a file
+    else:
+        print "Reading file...."
+        print "> Found single-line sequence file!"
+
+        seq=""
+        for i in xrange(0,len(content)):
+            seq = seq+content[i][:-1]
+
+        seq = list(seq)
+
+    return seq
+
+
+def calculate_net_charge(seq):
+    """
+       Calculate the net charge on a sequence
+    """
+
+    positive = seq.count('LYS') + seq.count('ARG')
+    negative = seq.count('GLU') + seq.count('ASP')
+
+    return (positive-negative)
+
+
+def calculate_optimal_sphere_radius(seq_length,extraspace):
+    return ((4*(seq_length+1))+(extraspace*2))/2
+
+
+def calculate_optimal_sphere_volume(seq_length, extraspace):
+    """
+        Function to calculate the optimal sphere volume. The peptide is estimated to be 4 nm
+        per amino acid when fully extended, + 0.2nm for the caps. To that add the extra space
+        on each side. Then divide this by 2.
+
+    """
+    optimal_radius = calculate_optimal_sphere_radius(seq_length,extraspace)
+
+    return ((4.0/3.0)*pi*(optimal_radius*optimal_radius*optimal_radius))
+
+
+def get_number_of_salt_ions(target_concentration, sequence, extraspace):
+    """
+        Get number of ions needed for a specific sequence to achieve the
+        correct concentration. Note that target_concentration should be in 
+        MOLAR and but extraspace in Angstroms
+    """
+
+    seq_length = len(sequence)
+
+    Na=6.0221367e+23
+    A3tol = 1.0e-27 # (RECALL 1m^3 = 1000l)
+
+    vol_in_l = calculate_optimal_sphere_volume(seq_length, extraspace) * A3tol
+
+    
+    num_ions = target_concentration * Na * vol_in_l
+
+    return(int(num_ions+0.5))
+
+
+def print_optimal_radius(seq_length, extraspace):
+
+    print "-----------------------------------------------------"
+    print " Optimal radius (with " + str(extraspace) + " Angstroms between fully"
+    print " extended chain and sphere boundary [estimate]"
+    print " radius =  " + str(int(calculate_optimal_sphere_radius(seq_length, extraspace))) + " A"
+    print "-----------------------------------------------------"
+
+
+def write_sequence_files(seq, target_salt, extraspace):
+
+    newseq = []
+    
+    for i in seq:
+        newseq.append(convert_1_to_3(i))
+    
+    charge = calculate_net_charge(newseq)
+
+    num_ions = get_number_of_salt_ions(target_salt, seq, extraspace)
+    
+    print " --> Writing file..."
+    ## determine number of sodium and chloride ions needed
+    if charge > 0:
+        sodium=num_ions
+        chloride=num_ions+charge
+        print " Sequence net charge : +" + str(charge)
+    else:
+        sodium=num_ions+charge
+        chloride=num_ions
+        print " Sequence net charge : -" + str(charge)
+
+
+
+        
+    print " Number of NA+ ions  :  " + str(sodium)
+    print " Number of CL- ions  :  " + str(chloride)
+    print " Salt concentration  :  " + str(target_salt) + " M"
+
+    ## Write new file
+    f = open('seq.in','w')
+    f.write('ACE\n')
+    for i in newseq:
+        f.write(i + "\n")
+    f.write('NME\n')
+    for i in xrange(0,sodium):
+        f.write('NA+\n')
+    for i in xrange(0,chloride):
+        f.write('CL-\n')
+    f.close()
+    
+        
+
+    
+
+        
+
+
+
+
+## ===================================================================================================
+##                              Main Script - hold onto your hat!
+## ===================================================================================================
+
+if __name__=="__main__":
+    import argparse 
+    import sys
+    from numpy import std, mean
+
+
+    print "+---------------------------------------------------------+"
+    print "|                                                         |"
+    print "|           simprep - a CAMPARI tool                      |"
+    print "|                                                         |"
+    print "| simprep is a tool to create input files with the        |"
+    print "| correct salt concentration for a CAMPARI simulation.    |"
+    print "|                                                         |"
+    print "| For help type 'simprep -h'                              |"
+    print "|                                                         |"
+    print "| v1.0 (Feb 2014)                                         |"
+    print "|                                                         |"
+    print "+---------------------------------------------------------+"
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--filename","-f", help="Name of the sequence file") 
+    parser.add_argument("--salt","-s", help="Target NaCl concentration']") 
+    parser.add_argument("--volume-buffer", "-v", help="Extra space between fully extended chain and simulation sphere (one side)")
+
+    args = parser.parse_args()
+
+    if args.filename:
+        filename=args.filename
+    else:
+        print "[FATAL ERROR]: Please provide a filename (-f 'filename')"
+        exit(1)
+
+
+    if args.salt:
+        target_salt=float(args.salt)
+    else:
+        target_salt=0.015 # 15mM
+
+    if args.volume_buffer:
+        extravol=float(args.volume_buffer)
+    else:
+        extravol=5 # 50 Angstroms
+
+    ## Read in file 
+    seq_list = read_in_sequence(filename)
+
+    ## print the optimal radius to use in a keyfile
+    print_optimal_radius(len(seq_list), extravol)    
+
+    try:
+        write_sequence_files(seq_list, target_salt, extravol)
+    except:
+        print "ERROR: Something went wrong writing the sequence file"
+        raise
+
+    print "Sequence file generated - seq.in"
+
+    
+    
