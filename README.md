@@ -5,8 +5,8 @@ simprep: overview
 
 
 
-usage
-===
+Usage
+-------------
 Simprep is designed to be used in *nix environments - i.e. it should run on any flavour of Linux or OSX. Given its just a Python script no installation is required - simply download and run the script here.
 
 To use simprep simply run as follows. This generates a file called seq.in in your current directory, as well as printing some information to the terminal
@@ -33,8 +33,16 @@ The only non-explanatory option here is the additional space option. CAMPARI sim
 
 That said if you want to over-estimate *even more* then the -v option allows you to add some number of additional Angstroms between the end of your fully extended chain and the droplet edge.
 
-contact
-===
+Considerations
+-------------
+Below are a couple of things you may wish to consider when running simprep
+
+* Ion-based calculations scale with n-squared. What this means is the simulation time grows very rapidly as the number of ions increases, so consider using lower salt concentrations if possible
+
+*
+
+Contact
+-------------
 For additional support, bug reports or anything else contact alex.holehouse@wustl.edu
 
   

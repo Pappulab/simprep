@@ -220,7 +220,7 @@ if __name__=="__main__":
     print "+---------------------------------------------------------+"
 
     parser = argparse.ArgumentParser()
-
+    
     parser.add_argument("--filename","-f", help="Name of the sequence file") 
     parser.add_argument("--salt","-s", help="Target NaCl concentration']") 
     parser.add_argument("--volume-buffer", "-v", help="Extra space between fully extended chain and simulation sphere (one side)")
