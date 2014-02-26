@@ -12,6 +12,7 @@
 
 from math import pi
 
+AVAGADRO=6.0221367e+23
 
 #-------------------------------------------------------------------
 def convert_1_to_3(AA):
@@ -116,10 +117,15 @@ def calculate_optimal_sphere_volume(seq_length, extraspace):
         per amino acid when fully extended, + 0.2nm for the caps. To that add the extra space
         on each side. Then divide this by 2.
 
+        This returns optimal sphere volume in L
+
+        
+
     """
+    A3tol = 1.0e-27 # (RECALL 1m^3 = 1000l)
     optimal_radius = calculate_optimal_sphere_radius(seq_length,extraspace)
 
-    return ((4.0/3.0)*pi*(optimal_radius*optimal_radius*optimal_radius))
+    return ((4.0/3.0)*pi*(optimal_radius*optimal_radius*optimal_radius))*A3tol
 
 
 #-------------------------------------------------------------------
@@ -132,13 +138,10 @@ def get_number_of_salt_ions(target_concentration, sequence, extraspace):
 
     seq_length = len(sequence)
 
-    Na=6.0221367e+23
-    A3tol = 1.0e-27 # (RECALL 1m^3 = 1000l)
-
-    vol_in_l = calculate_optimal_sphere_volume(seq_length, extraspace) * A3tol
+    vol_in_l = calculate_optimal_sphere_volume(seq_length, extraspace)
 
     
-    num_ions = target_concentration * Na * vol_in_l
+    num_ions = target_concentration * AVAGADRO * vol_in_l
 
     return(int(num_ions+0.5))
 
@@ -146,10 +149,18 @@ def get_number_of_salt_ions(target_concentration, sequence, extraspace):
 #-------------------------------------------------------------------
 def print_optimal_radius(seq_length, extraspace):
 
+    r=str(int(calculate_optimal_sphere_radius(seq_length, extraspace)))
+
     print "-----------------------------------------------------"
     print " Optimal radius (with " + str(extraspace) + " Angstroms between fully"
     print " extended chain and sphere boundary [estimate]"
-    print " radius =  " + str(int(calculate_optimal_sphere_radius(seq_length, extraspace))) + " A"
+    print ""
+    print " radius --->  " + r + " A"
+    print " ****************************************************"
+    print " *                                                  *"
+    print "       set FMCSC_SIZE to "+r+" in your keyfile   "
+    print " *                                                  *"
+    print " ****************************************************"
     print "-----------------------------------------------------"
 
 
@@ -177,11 +188,12 @@ def write_sequence_files(seq, target_salt, extraspace):
         print " Sequence net charge : -" + str(charge)
 
 
-
+    actual_salt = num_ions/(AVAGADRO * calculate_optimal_sphere_volume(len(seq), extraspace))
+        
         
     print " Number of NA+ ions  :  " + str(sodium)
     print " Number of CL- ions  :  " + str(chloride)
-    print " Salt concentration  :  " + str(target_salt) + " M"
+    print " Actual [salt]       :  " + str(actual_salt) + " M"
 
     ## Write new file
     f = open('seq.in','w')

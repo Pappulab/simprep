@@ -37,9 +37,15 @@ Considerations
 -------------
 Below are a couple of things you may wish to consider when running simprep
 
+* Getting the correct salt concentration *entirly* depends on YOU setting FMCSC_SIZE variable in your keyfile to the calculated radius value.
+
 * Ion-based calculations scale with n-squared. What this means is the simulation time grows very rapidly as the number of ions increases, so consider using lower salt concentrations if possible
 
-*
+* Histadine can have an epsilon-carbon hydrogen (HIE) or a delta carbon hydrogen (HID). By default simprep used HIE, so if this maters you may want to change the seq.in file created appropriatly
+
+* By default we use NaCl for salt. If there is interest in using other salts (which exist in ABSINTH) let me know and I can add support for this
+
+* The actual salt concentration is given when you run the program, but TOTALL
 
 Contact
 -------------
