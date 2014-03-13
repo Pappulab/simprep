@@ -183,7 +183,7 @@ def write_sequence_files(seq, target_salt, extraspace):
         chloride=num_ions+charge
         print " Sequence net charge : +" + str(charge)
     else:
-        sodium=num_ions+charge
+        sodium=num_ions+abs(charge)
         chloride=num_ions
         print " Sequence net charge : -" + str(charge)
 
@@ -205,6 +205,9 @@ def write_sequence_files(seq, target_salt, extraspace):
         f.write('NA+\n')
     for i in xrange(0,chloride):
         f.write('CL-\n')
+
+    ## write end
+    f.write('END\n')
     f.close()
     
 
