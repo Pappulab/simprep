@@ -6,8 +6,8 @@
 ##
 ## simprep
 ##
-## Creates a CAMPARI ready input file and provides a couple of parameters to define your simulation
-## with
+## Creates CAMPARI-ready input files and provides a couple of parameters 
+## with which to define your simulation
 ## 
 
 from math import pi
@@ -59,16 +59,28 @@ def read_in_sequence(filename):
         print '[FATAL ERROR]: File does not exist or could not be opened' 
         raise
 
+    seqs = []
+    names = []
+    
     # check if file is a FASTA file
-    if content[0].find(">") > -1:
+    if '>' in content[0]:
         print "Reading file...."
         print "> Found FASTA file!"
-
+        
+        # get all sequences
         seq=""
+        names.append(content[0][1:-1])
         for i in xrange(1,len(content)):
-            seq = seq+content[i][:-1]
-
-        seq = list(seq)
+            if '>' in content[i]:
+                names.append(content[i][1:-1])
+                seq = seq.replace('\n','').replace('\r','')
+                seqs.append(seq)
+                seq = ""
+            else:
+                seq = seq + content[i]
+                
+        seq = seq.replace('\n','').replace('\r','')
+        seqs.append(seq)
 
     # if we just have a sequence in a file
     else:
@@ -77,11 +89,12 @@ def read_in_sequence(filename):
 
         seq=""
         for i in xrange(0,len(content)):
-            seq = seq+content[i][:-1]
+            seq = seq+content[i].replace('\n','').replace('\r','')
+            
+        seqs.append(seq)
+        names.append('seq')
 
-        seq = list(seq)
-
-    return seq
+    return [names,seqs]
 
 
 #-------------------------------------------------------------------
@@ -147,10 +160,16 @@ def get_number_of_salt_ions(target_concentration, sequence, extraspace):
 
 
 #-------------------------------------------------------------------
-def print_optimal_radius(seq_length, extraspace):
+def print_optimal_radius(name, seq_length, extraspace):
 
     r=str(int(calculate_optimal_sphere_radius(seq_length, extraspace)))
-
+    
+    # half the length of the full format character length
+    half = (53 - len(name))/2
+    
+    print " "*53
+    print "-"*53
+    print (half+int(not len(name)%2))*'-' + name + half*'-'
     print "-----------------------------------------------------"
     print " Optimal radius (with " + str(extraspace) + " Angstroms between fully"
     print " extended chain and sphere boundary [estimate]"
@@ -165,7 +184,7 @@ def print_optimal_radius(seq_length, extraspace):
 
 
 #-------------------------------------------------------------------
-def write_sequence_files(seq, target_salt, extraspace):
+def write_sequence_files(name, seq, target_salt, extraspace):
 
     newseq = []
     
@@ -196,7 +215,7 @@ def write_sequence_files(seq, target_salt, extraspace):
     print " Actual [salt]       :  " + str(actual_salt) + " M"
 
     ## Write new file
-    f = open('seq.in','w')
+    f = open(name.replace(' ','_') + '.in','w')
     f.write('ACE\n')
     for i in newseq:
         f.write(i + "\n")
@@ -260,15 +279,19 @@ if __name__=="__main__":
         extravol=5 # 50 Angstroms
 
     ## Read in file 
-    seq_list = read_in_sequence(filename)
+    [names, seqs] = read_in_sequence(filename)
 
-    ## print the optimal radius to use in a keyfile
-    print_optimal_radius(len(seq_list), extravol)    
+    ## print the optimal radii to use in a keyfile
+    for i in range(len(seqs)):
+        seq_list = list(seqs[i])
+        print_optimal_radius(names[i],len(seq_list), extravol)    
 
-    try:
-        write_sequence_files(seq_list, target_salt, extravol)
-    except:
-        print "ERROR: Something went wrong writing the sequence file"
-        raise
+        try:
+            write_sequence_files(names[i], seq_list, target_salt, extravol)
+            print "Sequence file generated " + names[i] + ".in"
+            print "="*53
+        except:
+            print "ERROR: Something went wrong writing the sequence file"
+            raise
 
-    print "Sequence file generated - seq.in"
+    
