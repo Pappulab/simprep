@@ -37,7 +37,7 @@ Considerations
 -------------
 Below are a couple of things you may wish to consider when running simprep
 
-* Getting the correct salt concentration *entirly* depends on YOU setting FMCSC_SIZE variable in your keyfile to the calculated radius value.
+* Getting the correct salt concentration *entirely* depends on YOU setting FMCSC_SIZE variable in your keyfile to the calculated radius value.
 
 * Ion-based calculations scale with n-squared. What this means is the simulation time grows very rapidly as the number of ions increases, so consider using lower salt concentrations if possible
 
